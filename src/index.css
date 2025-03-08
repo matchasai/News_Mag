@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*{
+  font-family: Outfit;
+}
+
+/* Dark mode styles */
+:root {
+  --bg-color: #ffffff;
+  --text-color: #111827;
+  --transition-speed: 0.3s;
+}
+
+.dark {
+  --bg-color: #111827;
+  --text-color: #f9fafb;
+}
+
+/* Apply smooth transition */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color var(--transition-speed), color var(--transition-speed);
+}
