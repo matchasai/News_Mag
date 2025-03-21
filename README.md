@@ -3,7 +3,7 @@
 **News Magazine** is a modern and responsive news web application that fetches and displays the latest news from various categories using the GNews API. Built with **React, Tailwind CSS, and Bootstrap**, the app provides a sleek and user-friendly interface with features like **dark mode, bookmarking, and sharing**.
 
 ## 🚀 Live Demo
-👉 **[View the deployed app on Vercel]](https://news-mag-6ds8.vercel.app/)**
+👉 **[View the deployed app on Vercel](https://news-mag-6ds8.vercel.app/)**
 
 ---
 
