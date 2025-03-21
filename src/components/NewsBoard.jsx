@@ -13,10 +13,11 @@ const NewsBoard = ({ category }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("publishedAt");
 
+  const apiKey = import.meta.env.VITE_API_KEY; // Ensure this is in .env
+
   const fetchNews = async (pageNum, search) => {
     try {
-      const apiKey = import.meta.env.VITE_API_KEY; // Make sure this is defined in .env
-      let url = `https://newsapi.org/v2/top-headlines?country=us&category=${category}&page=${pageNum}&pageSize=6&apiKey=${apiKey}`;
+      let url = `https://gnews.io/api/v4/top-headlines?category=${category}&lang=en&country=in&max=6&page=${pageNum}&apikey=${apiKey}`;
 
       if (search) url += `&q=${search}`;
       if (sortBy === "relevancy") url += `&sortBy=relevancy`;
@@ -25,12 +26,13 @@ const NewsBoard = ({ category }) => {
         method: "GET",
         headers: {
           "Accept": "application/json",
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-        }
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        },
       });
 
       if (response.status === 426) {
-        throw new Error("426 Upgrade Required: Your API key may need an upgrade.");
+        setError("⚠️ API Plan Limit Reached: Upgrade Required");
+        return { articles: [] };
       }
 
       if (!response.ok) {
@@ -40,7 +42,8 @@ const NewsBoard = ({ category }) => {
       const data = await response.json();
       return data;
     } catch (err) {
-      throw new Error(`Error fetching news: ${err.message}`);
+      setError(`⚠️ Error fetching news: ${err.message}`);
+      return { articles: [] };
     }
   };
 
@@ -99,20 +102,21 @@ const NewsBoard = ({ category }) => {
 
       {error && (
         <div className="text-red-500 bg-red-100 p-3 rounded-md mb-4">
-          ⚠️ {error}
+          {error}
         </div>
       )}
 
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {articles.map((news, index) => (
           <NewsItem
-            key={`${news.url}-${index}`}
-            title={news.title}
-            description={news.description}
-            src={news.urlToImage}
-            url={news.url}
-            publishedAt={news.publishedAt}
-          />
+          key={`${news.url}-${index}`}
+          title={news.title}
+          description={news.description}
+          src={news.image ? news.image : "https://via.placeholder.com/400"} // Default image
+          url={news.url}
+          publishedAt={news.publishedAt}
+        />
+        
         ))}
       </div>
 
@@ -124,7 +128,6 @@ const NewsBoard = ({ category }) => {
         </div>
       )}
 
-      {/* Load More Button */}
       {hasMore && !loading && (
         <div className="flex justify-center mt-6">
           <button
