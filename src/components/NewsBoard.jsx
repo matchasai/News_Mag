@@ -15,33 +15,29 @@ const NewsBoard = ({ category }) => {
 
   const fetchNews = async (pageNum, search) => {
     try {
-      const apiKey = import.meta.env.VITE_API_KEY;
+      const apiKey = import.meta.env.VITE_API_KEY; // Make sure this is defined in .env
       let url = `https://newsapi.org/v2/top-headlines?country=us&category=${category}&page=${pageNum}&pageSize=6&apiKey=${apiKey}`;
 
-      
-      if (search && apiKey !== "VITE_API_KEY") {
-        url += `&q=${search}`;
-      }
-      if (sortBy === "relevancy") {
-        url += `&sortBy=relevancy`;
-      }
+      if (search) url += `&q=${search}`;
+      if (sortBy === "relevancy") url += `&sortBy=relevancy`;
 
       const response = await fetch(url, {
+        method: "GET",
         headers: {
           "Accept": "application/json",
-          "User-Agent": "Mozilla/5.0" 
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
         }
       });
+
+      if (response.status === 426) {
+        throw new Error("426 Upgrade Required: Your API key may need an upgrade.");
+      }
 
       if (!response.ok) {
         throw new Error(`Failed to fetch news: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
-      if (data.status !== "ok") {
-        throw new Error(`API Error: ${data.message}`);
-      }
-
       return data;
     } catch (err) {
       throw new Error(`Error fetching news: ${err.message}`);
@@ -63,7 +59,6 @@ const NewsBoard = ({ category }) => {
         setError(null);
       } catch (err) {
         setError(err.message);
-        console.error("News Fetch Error:", err.message);
       } finally {
         setLoading(false);
       }
@@ -102,7 +97,11 @@ const NewsBoard = ({ category }) => {
         {category.charAt(0).toUpperCase() + category.slice(1)} News
       </h2>
 
-      {error && <p className="text-red-600">❌ Error: {error}</p>}
+      {error && (
+        <div className="text-red-500 bg-red-100 p-3 rounded-md mb-4">
+          ⚠️ {error}
+        </div>
+      )}
 
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {articles.map((news, index) => (
@@ -125,7 +124,7 @@ const NewsBoard = ({ category }) => {
         </div>
       )}
 
-      
+      {/* Load More Button */}
       {hasMore && !loading && (
         <div className="flex justify-center mt-6">
           <button
