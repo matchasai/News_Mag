@@ -18,15 +18,30 @@ const NewsBoard = ({ category }) => {
       const apiKey = import.meta.env.VITE_API_KEY;
       let url = `https://newsapi.org/v2/top-headlines?country=us&category=${category}&page=${pageNum}&pageSize=6&apiKey=${apiKey}`;
 
-      if (search) url += `&q=${search}`;
-      if (sortBy === "relevancy") url += `&sortBy=relevancy`;
+      // NewsAPI free tier does not support `q`, so only use it if you have a paid plan
+      if (search && apiKey !== "YOUR_FREE_API_KEY") {
+        url += `&q=${search}`;
+      }
+      if (sortBy === "relevancy") {
+        url += `&sortBy=relevancy`;
+      }
 
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        headers: {
+          "Accept": "application/json",
+          "User-Agent": "Mozilla/5.0" // Prevents 426 error
+        }
+      });
+
       if (!response.ok) {
         throw new Error(`Failed to fetch news: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
+      if (data.status !== "ok") {
+        throw new Error(`API Error: ${data.message}`);
+      }
+
       return data;
     } catch (err) {
       throw new Error(`Error fetching news: ${err.message}`);
@@ -48,6 +63,7 @@ const NewsBoard = ({ category }) => {
         setError(null);
       } catch (err) {
         setError(err.message);
+        console.error("News Fetch Error:", err.message);
       } finally {
         setLoading(false);
       }
@@ -85,6 +101,8 @@ const NewsBoard = ({ category }) => {
       <h2 className="text-4xl font-bold mb-4 text-gray-700">
         {category.charAt(0).toUpperCase() + category.slice(1)} News
       </h2>
+
+      {error && <p className="text-red-600">❌ Error: {error}</p>}
 
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {articles.map((news, index) => (
