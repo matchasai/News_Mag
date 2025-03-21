@@ -18,8 +18,8 @@ const NewsBoard = ({ category }) => {
       const apiKey = import.meta.env.VITE_API_KEY;
       let url = `https://newsapi.org/v2/top-headlines?country=us&category=${category}&page=${pageNum}&pageSize=6&apiKey=${apiKey}`;
 
-      // NewsAPI free tier does not support `q`, so only use it if you have a paid plan
-      if (search && apiKey !== "YOUR_FREE_API_KEY") {
+      
+      if (search && apiKey !== "VITE_API_KEY") {
         url += `&q=${search}`;
       }
       if (sortBy === "relevancy") {
@@ -29,7 +29,7 @@ const NewsBoard = ({ category }) => {
       const response = await fetch(url, {
         headers: {
           "Accept": "application/json",
-          "User-Agent": "Mozilla/5.0" // Prevents 426 error
+          "User-Agent": "Mozilla/5.0" 
         }
       });
 
@@ -125,7 +125,7 @@ const NewsBoard = ({ category }) => {
         </div>
       )}
 
-      {/* Load More Button */}
+      
       {hasMore && !loading && (
         <div className="flex justify-center mt-6">
           <button
